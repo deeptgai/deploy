@@ -69,7 +69,7 @@ services:
       - server
       - -s3
       - -dir=/data
-      - -ip=seaweedfs
+      - -ip=${SEAWEEDFS_IP}
       - -ip.bind=0.0.0.0
       - -master.port=${SEAWEEDFS_MASTER_PORT}
       - -volume.port=${SEAWEEDFS_VOLUME_PORT}
