@@ -86,6 +86,8 @@ make logs-worker
 ## Notes
 
 - `ENV` contains secrets and must not be committed.
+- `ADMIN_USERNAME` and `ADMIN_PASSWORD` protect the admin UI with Basic Auth.
+- Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
 - `make login` requires a GitHub token with `read:packages`.
 - The web app listens on `APP_PORT` from `ENV`; default is `3000`.
 - The Docker image defaults to `ghcr.io/deeptgai/workspace:latest`.
