@@ -14,6 +14,8 @@ ssh tgdeep
 
 - Production domain: `https://tgdeep.xyz/`
 - DNS/proxy is managed through Cloudflare.
+- Cloudflare should point `tgdeep.xyz` to the server and proxy traffic to ports `80`/`443`.
+- Traefik terminates HTTPS and routes the domain to the `web` service.
 
 ## Deploy Repository
 
@@ -79,6 +81,7 @@ make ps
 
 ```bash
 make ps
+make logs-traefik
 make logs-web
 make logs-worker
 ```
@@ -88,6 +91,8 @@ make logs-worker
 - `ENV` contains secrets and must not be committed.
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` protect the admin UI with Basic Auth.
 - Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
+- `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
+- `TRAEFIK_ACME_EMAIL` is used for Let's Encrypt certificate registration.
 - `make login` requires a GitHub token with `read:packages`.
-- The web app listens on `APP_PORT` from `ENV`; default is `3000`.
+- Traefik publishes ports `80` and `443`; the web service is not exposed directly.
 - The Docker image defaults to `ghcr.io/deeptgai/workspace:latest`.

@@ -8,9 +8,9 @@ endif
 STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
 IMAGE_TAG ?= latest
-APP_PORT ?= 3000
+TRAEFIK_IMAGE ?= traefik:v3.7
 
-.PHONY: help check-env login pull deploy db-push ps logs logs-web logs-worker rm init-swarm
+.PHONY: help check-env login pull deploy db-push ps logs logs-traefik logs-web logs-worker rm init-swarm
 
 help:
 	@printf "Targets:\\n"
@@ -20,6 +20,7 @@ help:
 	@printf "  make deploy       Deploy/update Docker Swarm stack\\n"
 	@printf "  make db-push      Apply Prisma schema\\n"
 	@printf "  make ps           Show stack services\\n"
+	@printf "  make logs-traefik Follow Traefik logs\\n"
 	@printf "  make logs-web     Follow web logs\\n"
 	@printf "  make logs-worker  Follow worker logs\\n"
 	@printf "  make rm           Remove stack\\n"
@@ -36,6 +37,7 @@ login:
 
 pull: check-env
 	docker pull $(IMAGE):$(IMAGE_TAG)
+	docker pull $(TRAEFIK_IMAGE)
 
 deploy: check-env init-swarm
 	docker stack deploy --with-registry-auth --detach=false -c stack.yml $(STACK)
@@ -48,6 +50,9 @@ ps:
 
 logs:
 	docker service logs -f $(STACK)_web
+
+logs-traefik:
+	docker service logs -f $(STACK)_traefik
 
 logs-web:
 	docker service logs -f $(STACK)_web
