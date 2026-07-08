@@ -92,7 +92,10 @@ make logs-worker
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` protect the admin UI with Basic Auth.
 - Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
 - `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
+- Traefik router/service names, entrypoints, ports, network and ACME storage are configured only through `ENV`.
 - `TRAEFIK_ACME_EMAIL` is used for Let's Encrypt certificate registration.
+- Existing servers must update `/opt/deploy/ENV` from `ENV.example` after Traefik changes.
+- `APP_PORT` is no longer used for public traffic; Traefik publishes `TRAEFIK_HTTP_PUBLISHED_PORT` and `TRAEFIK_HTTPS_PUBLISHED_PORT`.
 - `make login` requires a GitHub token with `read:packages`.
 - Traefik publishes ports `80` and `443`; the web service is not exposed directly.
 - The Docker image defaults to `ghcr.io/deeptgai/workspace:latest`.

@@ -22,7 +22,7 @@ make ps
 ```
 
 The web app is exposed through Traefik on ports `80` and `443`.
-Set `DOMAIN` in `ENV`; DNS/proxy is managed in Cloudflare.
+Set `DOMAIN` and all Traefik settings in `ENV`; DNS/proxy is managed in Cloudflare.
 
 ## Useful Commands
 

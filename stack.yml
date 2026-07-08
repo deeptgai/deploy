@@ -2,31 +2,31 @@ services:
   traefik:
     image: ${TRAEFIK_IMAGE}
     command:
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-      - "--entrypoints.websecure.address=:443"
-      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.address=:${TRAEFIK_HTTP_PORT}"
+      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.to=${TRAEFIK_WEBSECURE_ENTRYPOINT}"
+      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.${TRAEFIK_WEBSECURE_ENTRYPOINT}.address=:${TRAEFIK_HTTPS_PORT}"
+      - "--providers.swarm.endpoint=${TRAEFIK_SWARM_ENDPOINT}"
       - "--providers.swarm.watch=true"
       - "--providers.swarm.exposedbydefault=false"
-      - "--providers.swarm.network=${STACK}_app"
-      - "--certificatesresolvers.le.acme.email=${TRAEFIK_ACME_EMAIL}"
-      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--providers.swarm.network=${TRAEFIK_NETWORK}"
+      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.storage=${TRAEFIK_ACME_STORAGE}"
+      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.httpchallenge.entrypoint=${TRAEFIK_WEB_ENTRYPOINT}"
       - "--log.level=${TRAEFIK_LOG_LEVEL}"
-      - "--accesslog=true"
+      - "--accesslog=${TRAEFIK_ACCESSLOG}"
     ports:
-      - target: 80
-        published: 80
+      - target: ${TRAEFIK_HTTP_PORT}
+        published: ${TRAEFIK_HTTP_PUBLISHED_PORT}
         protocol: tcp
         mode: host
-      - target: 443
-        published: 443
+      - target: ${TRAEFIK_HTTPS_PORT}
+        published: ${TRAEFIK_HTTPS_PUBLISHED_PORT}
         protocol: tcp
         mode: host
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${TRAEFIK_DOCKER_SOCKET}:${TRAEFIK_DOCKER_SOCKET}:ro
       - traefik_letsencrypt:/letsencrypt
     networks:
       - app
@@ -89,12 +89,12 @@ services:
       replicas: ${WEB_REPLICAS}
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.deeptg.rule=Host(`${DOMAIN}`)"
-        - "traefik.http.routers.deeptg.entrypoints=websecure"
-        - "traefik.http.routers.deeptg.tls=true"
-        - "traefik.http.routers.deeptg.tls.certresolver=le"
-        - "traefik.http.routers.deeptg.service=deeptg"
-        - "traefik.http.services.deeptg.loadbalancer.server.port=3000"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=${TRAEFIK_WEBSECURE_ENTRYPOINT}"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls=true"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_SERVICE_NAME}"
+        - "traefik.http.services.${TRAEFIK_SERVICE_NAME}.loadbalancer.server.port=${WEB_INTERNAL_PORT}"
       update_config:
         order: start-first
         failure_action: rollback
@@ -119,8 +119,12 @@ services:
 networks:
   app:
     driver: overlay
+    name: ${TRAEFIK_NETWORK}
 
 volumes:
   postgres_data:
+    name: ${POSTGRES_VOLUME}
   redis_data:
+    name: ${REDIS_VOLUME}
   traefik_letsencrypt:
+    name: ${TRAEFIK_ACME_VOLUME}

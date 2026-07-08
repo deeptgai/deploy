@@ -9,6 +9,25 @@ STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
 IMAGE_TAG ?= latest
 TRAEFIK_IMAGE ?= traefik:v3.7
+TRAEFIK_NETWORK ?= $(STACK)_app
+TRAEFIK_ROUTER_NAME ?= deeptg
+TRAEFIK_SERVICE_NAME ?= deeptg
+TRAEFIK_WEB_ENTRYPOINT ?= web
+TRAEFIK_WEBSECURE_ENTRYPOINT ?= websecure
+TRAEFIK_HTTP_PORT ?= 80
+TRAEFIK_HTTPS_PORT ?= 443
+TRAEFIK_HTTP_PUBLISHED_PORT ?= 80
+TRAEFIK_HTTPS_PUBLISHED_PORT ?= 443
+TRAEFIK_SWARM_ENDPOINT ?= unix:///var/run/docker.sock
+TRAEFIK_DOCKER_SOCKET ?= /var/run/docker.sock
+TRAEFIK_CERT_RESOLVER ?= le
+TRAEFIK_ACME_STORAGE ?= /letsencrypt/acme.json
+TRAEFIK_ACME_VOLUME ?= $(STACK)_traefik_letsencrypt
+TRAEFIK_LOG_LEVEL ?= INFO
+TRAEFIK_ACCESSLOG ?= true
+WEB_INTERNAL_PORT ?= 3000
+POSTGRES_VOLUME ?= $(STACK)_postgres_data
+REDIS_VOLUME ?= $(STACK)_redis_data
 
 .PHONY: help check-env login pull deploy db-push ps logs logs-traefik logs-web logs-worker rm init-swarm
 
