@@ -3,17 +3,10 @@ services:
     image: ${TRAEFIK_IMAGE}
     command:
       - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.address=:${TRAEFIK_HTTP_PORT}"
-      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.to=${TRAEFIK_WEBSECURE_ENTRYPOINT}"
-      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.${TRAEFIK_WEB_ENTRYPOINT}.http.redirections.entrypoint.permanent=true"
-      - "--entrypoints.${TRAEFIK_WEBSECURE_ENTRYPOINT}.address=:${TRAEFIK_HTTPS_PORT}"
       - "--providers.swarm.endpoint=${TRAEFIK_SWARM_ENDPOINT}"
       - "--providers.swarm.watch=true"
       - "--providers.swarm.exposedbydefault=false"
       - "--providers.swarm.network=${TRAEFIK_NETWORK}"
-      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.email=${TRAEFIK_ACME_EMAIL}"
-      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.storage=${TRAEFIK_ACME_STORAGE}"
-      - "--certificatesresolvers.${TRAEFIK_CERT_RESOLVER}.acme.httpchallenge.entrypoint=${TRAEFIK_WEB_ENTRYPOINT}"
       - "--log.level=${TRAEFIK_LOG_LEVEL}"
       - "--accesslog=${TRAEFIK_ACCESSLOG}"
     ports:
@@ -21,13 +14,8 @@ services:
         published: ${TRAEFIK_HTTP_PUBLISHED_PORT}
         protocol: tcp
         mode: host
-      - target: ${TRAEFIK_HTTPS_PORT}
-        published: ${TRAEFIK_HTTPS_PUBLISHED_PORT}
-        protocol: tcp
-        mode: host
     volumes:
       - ${TRAEFIK_DOCKER_SOCKET}:${TRAEFIK_DOCKER_SOCKET}:ro
-      - traefik_letsencrypt:/letsencrypt
     networks:
       - app
     deploy:
@@ -90,9 +78,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${DOMAIN}`)"
-        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=${TRAEFIK_WEBSECURE_ENTRYPOINT}"
-        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls=true"
-        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+        - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=${TRAEFIK_WEB_ENTRYPOINT}"
         - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_SERVICE_NAME}"
         - "traefik.http.services.${TRAEFIK_SERVICE_NAME}.loadbalancer.server.port=${WEB_INTERNAL_PORT}"
       update_config:
@@ -127,5 +113,3 @@ volumes:
     name: ${POSTGRES_VOLUME}
   redis_data:
     name: ${REDIS_VOLUME}
-  traefik_letsencrypt:
-    name: ${TRAEFIK_ACME_VOLUME}

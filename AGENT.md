@@ -14,8 +14,9 @@ ssh tgdeep
 
 - Production domain: `https://tgdeep.xyz/`
 - DNS/proxy is managed through Cloudflare.
-- Cloudflare should point `tgdeep.xyz` to the server and proxy traffic to ports `80`/`443`.
-- Traefik terminates HTTPS and routes the domain to the `web` service.
+- Cloudflare should point `tgdeep.xyz` to the server with proxy enabled.
+- Cloudflare terminates HTTPS. Traefik only listens on origin HTTP port `80` and routes the domain to the `web` service.
+- Cloudflare SSL/TLS mode should be `Flexible` while origin TLS is disabled.
 
 ## Deploy Repository
 
@@ -92,10 +93,9 @@ make logs-worker
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` protect the admin UI with Basic Auth.
 - Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
 - `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
-- Traefik router/service names, entrypoints, ports, network and ACME storage are configured only through `ENV`.
-- `TRAEFIK_ACME_EMAIL` is used for Let's Encrypt certificate registration.
+- Traefik router/service names, HTTP entrypoint, port and network are configured only through `ENV`.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after Traefik changes.
-- `APP_PORT` is no longer used for public traffic; Traefik publishes `TRAEFIK_HTTP_PUBLISHED_PORT` and `TRAEFIK_HTTPS_PUBLISHED_PORT`.
+- `APP_PORT` is no longer used for public traffic; Traefik publishes `TRAEFIK_HTTP_PUBLISHED_PORT`.
 - `make login` requires a GitHub token with `read:packages`.
-- Traefik publishes ports `80` and `443`; the web service is not exposed directly.
+- Traefik publishes port `80`; the web service is not exposed directly.
 - Use immutable Docker image tags such as `ghcr.io/deeptgai/workspace:sha-16d79f5`; do not deploy `latest` in production.

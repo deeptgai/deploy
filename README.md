@@ -21,7 +21,8 @@ make db-push
 make ps
 ```
 
-The web app is exposed through Traefik on ports `80` and `443`.
+The web app is exposed through Traefik on origin HTTP port `80`.
+Cloudflare terminates public HTTPS and proxies to Traefik over HTTP.
 Set `DOMAIN` and all Traefik settings in `ENV`; DNS/proxy is managed in Cloudflare.
 
 ## Useful Commands
