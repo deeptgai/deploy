@@ -7,7 +7,7 @@ endif
 
 STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
-IMAGE_TAG ?= latest
+IMAGE_TAG ?= sha-16d79f5
 TRAEFIK_IMAGE ?= traefik:v3.7
 TRAEFIK_NETWORK ?= $(STACK)_app
 TRAEFIK_ROUTER_NAME ?= deeptg
@@ -29,7 +29,7 @@ WEB_INTERNAL_PORT ?= 3000
 POSTGRES_VOLUME ?= $(STACK)_postgres_data
 REDIS_VOLUME ?= $(STACK)_redis_data
 
-.PHONY: help check-env login pull deploy db-push ps logs logs-traefik logs-web logs-worker rm init-swarm
+.PHONY: help check-env check-image-tag login pull deploy db-push ps logs logs-traefik logs-web logs-worker rm init-swarm
 
 help:
 	@printf "Targets:\\n"
@@ -47,6 +47,9 @@ help:
 check-env:
 	@test -f "$(ENV_FILE)" || (echo "Missing $(ENV_FILE). Copy ENV.example to $(ENV_FILE)." && exit 1)
 
+check-image-tag: check-env
+	@test "$(IMAGE_TAG)" != "latest" || (echo "Refusing to deploy IMAGE_TAG=latest. Use an immutable tag like sha-16d79f5." && exit 1)
+
 init-swarm:
 	@docker info --format '{{.Swarm.LocalNodeState}}' | grep -q active || docker swarm init
 
@@ -54,14 +57,14 @@ login:
 	@echo "Login to GitHub Container Registry. Use a GitHub token with read:packages."
 	docker login ghcr.io
 
-pull: check-env
+pull: check-image-tag
 	docker pull $(IMAGE):$(IMAGE_TAG)
 	docker pull $(TRAEFIK_IMAGE)
 
-deploy: check-env init-swarm
+deploy: check-image-tag init-swarm
 	docker stack deploy --with-registry-auth --detach=false -c stack.yml $(STACK)
 
-db-push: check-env
+db-push: check-image-tag
 	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run db:push
 
 ps:

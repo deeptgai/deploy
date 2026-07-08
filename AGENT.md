@@ -98,4 +98,4 @@ make logs-worker
 - `APP_PORT` is no longer used for public traffic; Traefik publishes `TRAEFIK_HTTP_PUBLISHED_PORT` and `TRAEFIK_HTTPS_PUBLISHED_PORT`.
 - `make login` requires a GitHub token with `read:packages`.
 - Traefik publishes ports `80` and `443`; the web service is not exposed directly.
-- The Docker image defaults to `ghcr.io/deeptgai/workspace:latest`.
+- Use immutable Docker image tags such as `ghcr.io/deeptgai/workspace:sha-16d79f5`; do not deploy `latest` in production.
