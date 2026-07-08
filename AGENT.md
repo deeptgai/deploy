@@ -58,6 +58,7 @@ git pull
 make pull
 make deploy
 make db-push
+make storage-bootstrap
 make ps
 ```
 
@@ -75,6 +76,7 @@ nano ENV
 make login
 make deploy
 make db-push
+make storage-bootstrap
 make ps
 ```
 
@@ -95,6 +97,7 @@ make logs-worker
 - `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
 - Traefik router/service names, HTTP entrypoint, port and network are configured only through `ENV`.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after Traefik changes.
+- Existing servers must update `/opt/deploy/ENV` from `ENV.example` after SeaweedFS/object storage changes, then run `make storage-bootstrap`.
 - `APP_PORT` is no longer used for public traffic; Traefik publishes `TRAEFIK_HTTP_PUBLISHED_PORT`.
 - `make login` requires a GitHub token with `read:packages`.
 - Traefik publishes port `80`; the web service is not exposed directly.

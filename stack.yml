@@ -63,6 +63,32 @@ services:
       restart_policy:
         condition: on-failure
 
+  seaweedfs:
+    image: ${SEAWEEDFS_IMAGE}
+    command:
+      - server
+      - -s3
+      - -dir=/data
+      - -ip=seaweedfs
+      - -ip.bind=0.0.0.0
+      - -master.port=${SEAWEEDFS_MASTER_PORT}
+      - -volume.port=${SEAWEEDFS_VOLUME_PORT}
+      - -filer.port=${SEAWEEDFS_FILER_PORT}
+      - -s3.port=${SEAWEEDFS_S3_PORT}
+    volumes:
+      - seaweedfs_data:/data
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:${SEAWEEDFS_S3_PORT}/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
   web:
     image: ${IMAGE}:${IMAGE_TAG}
     command: ["npm", "run", "start:web"]
@@ -73,6 +99,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - seaweedfs
     deploy:
       replicas: ${WEB_REPLICAS}
       labels:
@@ -97,6 +124,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - seaweedfs
     deploy:
       replicas: ${WORKER_REPLICAS}
       restart_policy:
@@ -113,3 +141,5 @@ volumes:
     name: ${POSTGRES_VOLUME}
   redis_data:
     name: ${REDIS_VOLUME}
+  seaweedfs_data:
+    name: ${SEAWEEDFS_VOLUME}

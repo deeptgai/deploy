@@ -9,6 +9,7 @@ STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
 IMAGE_TAG ?= sha-16d79f5
 TRAEFIK_IMAGE ?= traefik:v3.7
+SEAWEEDFS_IMAGE ?= chrislusf/seaweedfs:3.85
 TRAEFIK_NETWORK ?= $(STACK)_app
 TRAEFIK_ROUTER_NAME ?= deeptg
 TRAEFIK_SERVICE_NAME ?= deeptg
@@ -22,8 +23,9 @@ TRAEFIK_ACCESSLOG ?= true
 WEB_INTERNAL_PORT ?= 3000
 POSTGRES_VOLUME ?= $(STACK)_postgres_data
 REDIS_VOLUME ?= $(STACK)_redis_data
+SEAWEEDFS_VOLUME ?= $(STACK)_seaweedfs_data
 
-.PHONY: help check-env check-image-tag login pull deploy db-push ps logs logs-traefik logs-web logs-worker rm init-swarm
+.PHONY: help check-env check-image-tag login pull deploy db-push storage-bootstrap ps logs logs-traefik logs-web logs-worker rm init-swarm
 
 help:
 	@printf "Targets:\\n"
@@ -32,6 +34,7 @@ help:
 	@printf "  make pull         Pull application image\\n"
 	@printf "  make deploy       Deploy/update Docker Swarm stack\\n"
 	@printf "  make db-push      Apply Prisma schema\\n"
+	@printf "  make storage-bootstrap Create object storage bucket\\n"
 	@printf "  make ps           Show stack services\\n"
 	@printf "  make logs-traefik Follow Traefik logs\\n"
 	@printf "  make logs-web     Follow web logs\\n"
@@ -54,12 +57,16 @@ login:
 pull: check-image-tag
 	docker pull $(IMAGE):$(IMAGE_TAG)
 	docker pull $(TRAEFIK_IMAGE)
+	docker pull $(SEAWEEDFS_IMAGE)
 
 deploy: check-image-tag init-swarm
 	docker stack deploy --with-registry-auth --detach=false -c stack.yml $(STACK)
 
 db-push: check-image-tag
 	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run db:push
+
+storage-bootstrap: check-image-tag
+	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run cli -- storage:bootstrap
 
 ps:
 	docker stack services $(STACK)

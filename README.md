@@ -4,7 +4,7 @@ Docker Swarm deployment files for `deeptgai/workspace`.
 
 ## Files
 
-- `stack.yml` - Docker Swarm stack: Traefik, web, worker, postgres+pgvector, redis.
+- `stack.yml` - Docker Swarm stack: Traefik, web, worker, postgres+pgvector, redis, SeaweedFS S3 storage.
 - `Makefile` - common deploy commands.
 - `ENV.example` - environment template. Copy it to `ENV` and fill secrets.
 - `scripts/install-ubuntu.sh` - fresh Ubuntu bootstrap script.
@@ -18,6 +18,7 @@ $EDITOR ENV
 make login
 make deploy
 make db-push
+make storage-bootstrap
 make ps
 ```
 
@@ -30,6 +31,7 @@ Set `DOMAIN` and all Traefik settings in `ENV`; DNS/proxy is managed in Cloudfla
 ```bash
 make deploy       # deploy/update stack
 make db-push      # apply Prisma schema to Postgres
+make storage-bootstrap # create object storage bucket
 make ps           # stack services
 make logs-traefik # Traefik logs
 make logs-web     # web logs
