@@ -119,6 +119,7 @@ services:
 networks:
   app:
     driver: overlay
+    attachable: true
     name: ${TRAEFIK_NETWORK}
 
 volumes:
