@@ -4,9 +4,16 @@ Use this file as the operational checklist for deploying DeepTG.
 
 ## Server Access
 
+Run SSH/deploy commands in Anton's local terminal, not inside an agent sandbox.
+
 ```bash
 ssh tgdeep
 ```
+
+## Domain
+
+- Production domain: `https://tgdeep.xyz/`
+- DNS/proxy is managed through Cloudflare.
 
 ## Project Directory On Server
 
