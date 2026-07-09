@@ -7,7 +7,7 @@ endif
 
 STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
-IMAGE_TAG ?= sha-5043196
+IMAGE_TAG ?= sha-66bc58b
 TRAEFIK_IMAGE ?= traefik:v3.7
 SEAWEEDFS_IMAGE ?= chrislusf/seaweedfs:3.85
 TRAEFIK_NETWORK ?= $(STACK)_app
