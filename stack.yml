@@ -138,6 +138,9 @@ services:
         - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.rule=Host(`${BOT_DOMAIN}`)"
         - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.entrypoints=${TRAEFIK_WEB_ENTRYPOINT}"
         - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.service=${TRAEFIK_BOT_SERVICE_NAME}"
+        - "traefik.http.routers.${TRAEFIK_BOT_WEBHOOK_ROUTER_NAME}.rule=Host(`${DOMAIN}`) && PathPrefix(`${TELEGRAM_WEBHOOK_PATH}`)"
+        - "traefik.http.routers.${TRAEFIK_BOT_WEBHOOK_ROUTER_NAME}.entrypoints=${TRAEFIK_WEB_ENTRYPOINT}"
+        - "traefik.http.routers.${TRAEFIK_BOT_WEBHOOK_ROUTER_NAME}.service=${TRAEFIK_BOT_SERVICE_NAME}"
         - "traefik.http.services.${TRAEFIK_BOT_SERVICE_NAME}.loadbalancer.server.port=${TELEGRAM_WEBHOOK_PORT}"
       update_config:
         order: start-first

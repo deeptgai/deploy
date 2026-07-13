@@ -25,7 +25,7 @@ make ps
 The web app and bot webhook are exposed through Traefik on origin HTTP port `80`.
 Cloudflare terminates public HTTPS and proxies to Traefik over HTTP.
 Set `DOMAIN`, `BOT_DOMAIN` and all Traefik settings in `ENV`; DNS/proxy is managed in Cloudflare.
-Use `https://bot.tgdeep.xyz` as `TELEGRAM_WEBHOOK_URL`; Telegram requires HTTPS for public webhooks even when Cloudflare talks to Traefik over origin HTTP.
+Use `https://tgdeep.xyz` as `TELEGRAM_WEBHOOK_URL`; Telegram requires HTTPS for public webhooks even when Cloudflare talks to Traefik over origin HTTP. The stack routes `tgdeep.xyz/telegram/webhook` and `bot.tgdeep.xyz` to the same bot service.
 
 ## Useful Commands
 

@@ -98,7 +98,7 @@ make logs-worker
 - Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
 - `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
 - `BOT_DOMAIN` controls the bot webhook host rule; production value is `bot.tgdeep.xyz`.
-- `TELEGRAM_WEBHOOK_URL` must be the public HTTPS base URL, for example `https://bot.tgdeep.xyz`.
+- `TELEGRAM_WEBHOOK_URL` must be the public HTTPS base URL. Use `https://tgdeep.xyz` so Telegram posts to `/telegram/webhook`; Traefik also keeps `bot.tgdeep.xyz` routed to the bot service.
 - Traefik router/service names, HTTP entrypoint, port and network are configured only through `ENV`.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after Traefik changes.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after SeaweedFS/object storage changes, then run `make storage-bootstrap`.
