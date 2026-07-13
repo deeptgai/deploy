@@ -17,7 +17,6 @@ $EDITOR ENV
 
 make login
 make deploy
-make db-push
 make storage-bootstrap
 make ps
 ```
@@ -31,7 +30,7 @@ Use `https://tgdeep.xyz` as `TELEGRAM_WEBHOOK_URL`; Telegram requires HTTPS for 
 
 ```bash
 make deploy       # deploy/update stack
-make db-push      # apply Prisma schema to Postgres
+make db-migrate   # apply Prisma migrations manually
 make storage-bootstrap # create object storage bucket
 make ps           # stack services
 make logs-traefik # Traefik logs
@@ -55,5 +54,5 @@ Then edit `/opt/deploy/ENV` and run:
 cd /opt/deploy
 make login
 make deploy
-make db-push
+make storage-bootstrap
 ```

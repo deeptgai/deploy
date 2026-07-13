@@ -57,7 +57,6 @@ Next steps:
   nano ENV
   make login
   make deploy
-  make db-push
 
 If this user was not already in the docker group, log out and back in before running docker without sudo.
 EOF

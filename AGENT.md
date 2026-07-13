@@ -48,9 +48,8 @@ cd /opt/deploy
 2. Go to the deploy directory.
 3. Pull the latest deploy repository changes.
 4. Check that `ENV` exists and has the current secrets.
-5. Pull/deploy the current image.
-6. Apply database schema changes if needed.
-7. Check services and logs.
+5. Pull/deploy the current image. `make deploy` also applies Prisma migrations.
+6. Check services and logs.
 
 ```bash
 ssh tgdeep
@@ -58,7 +57,6 @@ cd /opt/deploy
 git pull
 make pull
 make deploy
-make db-push
 make storage-bootstrap
 make ps
 ```
@@ -76,7 +74,6 @@ sudo ./scripts/install-ubuntu.sh
 nano ENV
 make login
 make deploy
-make db-push
 make storage-bootstrap
 make ps
 ```

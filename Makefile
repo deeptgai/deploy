@@ -7,7 +7,7 @@ endif
 
 STACK ?= deeptg
 IMAGE ?= ghcr.io/deeptgai/workspace
-IMAGE_TAG ?= sha-eb3b03d
+IMAGE_TAG ?= sha-f14aa10
 TRAEFIK_IMAGE ?= traefik:v3.7
 SEAWEEDFS_IMAGE ?= chrislusf/seaweedfs:3.85
 DOMAIN ?= tgdeep.xyz
@@ -32,7 +32,7 @@ POSTGRES_VOLUME ?= $(STACK)_postgres_data
 REDIS_VOLUME ?= $(STACK)_redis_data
 SEAWEEDFS_VOLUME ?= $(STACK)_seaweedfs_data
 
-.PHONY: help check-env check-image-tag login pull deploy db-push storage-bootstrap ps logs logs-traefik logs-web logs-bot logs-worker rm init-swarm
+.PHONY: help check-env check-image-tag login pull deploy db-migrate storage-bootstrap ps logs logs-traefik logs-web logs-bot logs-worker rm init-swarm
 
 help:
 	@printf "Targets:\\n"
@@ -40,7 +40,7 @@ help:
 	@printf "  make login        Login to ghcr.io\\n"
 	@printf "  make pull         Pull application image\\n"
 	@printf "  make deploy       Deploy/update Docker Swarm stack\\n"
-	@printf "  make db-push      Apply Prisma schema\\n"
+	@printf "  make db-migrate   Apply Prisma migrations\\n"
 	@printf "  make storage-bootstrap Create object storage bucket\\n"
 	@printf "  make ps           Show stack services\\n"
 	@printf "  make logs-traefik Follow Traefik logs\\n"
@@ -68,10 +68,12 @@ pull: check-image-tag
 	docker pull $(SEAWEEDFS_IMAGE)
 
 deploy: check-image-tag init-swarm
+	@if docker network inspect $(STACK)_app >/dev/null 2>&1; then $(MAKE) db-migrate; fi
 	docker stack deploy --with-registry-auth --detach=false -c stack.yml $(STACK)
+	$(MAKE) db-migrate
 
-db-push: check-image-tag
-	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run db:push
+db-migrate: check-image-tag
+	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run db:deploy
 
 storage-bootstrap: check-image-tag
 	docker run --rm --network $(STACK)_app --env-file $(ENV_FILE) $(IMAGE):$(IMAGE_TAG) npm run cli -- storage:bootstrap
