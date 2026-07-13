@@ -10,9 +10,13 @@ IMAGE ?= ghcr.io/deeptgai/workspace
 IMAGE_TAG ?= sha-eb3b03d
 TRAEFIK_IMAGE ?= traefik:v3.7
 SEAWEEDFS_IMAGE ?= chrislusf/seaweedfs:3.85
+DOMAIN ?= tgdeep.xyz
+BOT_DOMAIN ?= bot.$(DOMAIN)
 TRAEFIK_NETWORK ?= $(STACK)_app
 TRAEFIK_ROUTER_NAME ?= deeptg
 TRAEFIK_SERVICE_NAME ?= deeptg
+TRAEFIK_BOT_ROUTER_NAME ?= deeptg-bot
+TRAEFIK_BOT_SERVICE_NAME ?= deeptg-bot
 TRAEFIK_WEB_ENTRYPOINT ?= web
 TRAEFIK_HTTP_PORT ?= 80
 TRAEFIK_HTTP_PUBLISHED_PORT ?= 80
@@ -21,11 +25,13 @@ TRAEFIK_DOCKER_SOCKET ?= /var/run/docker.sock
 TRAEFIK_LOG_LEVEL ?= INFO
 TRAEFIK_ACCESSLOG ?= true
 WEB_INTERNAL_PORT ?= 3000
+BOT_REPLICAS ?= 1
+TELEGRAM_WEBHOOK_PORT ?= 8787
 POSTGRES_VOLUME ?= $(STACK)_postgres_data
 REDIS_VOLUME ?= $(STACK)_redis_data
 SEAWEEDFS_VOLUME ?= $(STACK)_seaweedfs_data
 
-.PHONY: help check-env check-image-tag login pull deploy db-push storage-bootstrap ps logs logs-traefik logs-web logs-worker rm init-swarm
+.PHONY: help check-env check-image-tag login pull deploy db-push storage-bootstrap ps logs logs-traefik logs-web logs-bot logs-worker rm init-swarm
 
 help:
 	@printf "Targets:\\n"
@@ -38,6 +44,7 @@ help:
 	@printf "  make ps           Show stack services\\n"
 	@printf "  make logs-traefik Follow Traefik logs\\n"
 	@printf "  make logs-web     Follow web logs\\n"
+	@printf "  make logs-bot     Follow bot logs\\n"
 	@printf "  make logs-worker  Follow worker logs\\n"
 	@printf "  make rm           Remove stack\\n"
 
@@ -79,6 +86,9 @@ logs-traefik:
 
 logs-web:
 	docker service logs -f $(STACK)_web
+
+logs-bot:
+	docker service logs -f $(STACK)_bot
 
 logs-worker:
 	docker service logs -f $(STACK)_worker

@@ -114,6 +114,37 @@ services:
       restart_policy:
         condition: on-failure
 
+  bot:
+    image: ${IMAGE}:${IMAGE_TAG}
+    command: ["npm", "run", "start:tgbot"]
+    env_file:
+      - ENV
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          node -e "fetch('http://127.0.0.1:' + (process.env.TELEGRAM_WEBHOOK_PORT || '8787') + '/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app
+    depends_on:
+      - postgres
+    deploy:
+      replicas: ${BOT_REPLICAS}
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.rule=Host(`${BOT_DOMAIN}`)"
+        - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.entrypoints=${TRAEFIK_WEB_ENTRYPOINT}"
+        - "traefik.http.routers.${TRAEFIK_BOT_ROUTER_NAME}.service=${TRAEFIK_BOT_SERVICE_NAME}"
+        - "traefik.http.services.${TRAEFIK_BOT_SERVICE_NAME}.loadbalancer.server.port=${TELEGRAM_WEBHOOK_PORT}"
+      update_config:
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+
   worker:
     image: ${IMAGE}:${IMAGE_TAG}
     command: ["npm", "run", "worker"]

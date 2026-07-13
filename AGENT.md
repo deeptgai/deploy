@@ -13,8 +13,9 @@ ssh tgdeep
 ## Domain
 
 - Production domain: `https://tgdeep.xyz/`
+- Production bot domain: `https://bot.tgdeep.xyz/`
 - DNS/proxy is managed through Cloudflare.
-- Cloudflare should point `tgdeep.xyz` to the server with proxy enabled.
+- Cloudflare should point `tgdeep.xyz` and `bot.tgdeep.xyz` to the server with proxy enabled.
 - Cloudflare terminates HTTPS. Traefik only listens on origin HTTP port `80` and routes the domain to the `web` service.
 - Cloudflare SSL/TLS mode should be `Flexible` while origin TLS is disabled.
 
@@ -86,6 +87,7 @@ make ps
 make ps
 make logs-traefik
 make logs-web
+make logs-bot
 make logs-worker
 ```
 
@@ -95,6 +97,8 @@ make logs-worker
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` protect the admin UI with Basic Auth.
 - Public snapshot routes stay open: `/s/...` and `/share/snapshots/...`.
 - `DOMAIN` controls the Traefik host rule; production value is `tgdeep.xyz`.
+- `BOT_DOMAIN` controls the bot webhook host rule; production value is `bot.tgdeep.xyz`.
+- `TELEGRAM_WEBHOOK_URL` must be the public HTTPS base URL, for example `https://bot.tgdeep.xyz`.
 - Traefik router/service names, HTTP entrypoint, port and network are configured only through `ENV`.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after Traefik changes.
 - Existing servers must update `/opt/deploy/ENV` from `ENV.example` after SeaweedFS/object storage changes, then run `make storage-bootstrap`.
